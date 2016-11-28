@@ -25,6 +25,10 @@ videojs.plugin 'ga', (options = {}) ->
   # if you didn't specify a name, it will be 'guessed' from the video src after metadatas are loaded
   eventLabel = options.eventLabel || dataSetupOptions.eventLabel
 
+  # if useDetaLayer isn's specified
+  options.useDataLayer = options.useDataLayer || false
+  options.dataLayerEvent = options.dataLayerEvent || 'gaEvent'
+
   # if debug isn't specified
   options.debug = options.debug || false
 
@@ -112,7 +116,15 @@ videojs.plugin 'ga', (options = {}) ->
 
   sendbeacon = ( action, nonInteraction, value ) ->
     # console.log action, " ", nonInteraction, " ", value
-    if window.ga
+    if options.useDataLayer
+      dataLayer.push
+        'event'           : options.dataLayerEvent
+        'eventCategory'   : eventCategory
+        'eventAction'     : action
+        'eventLabel'      : eventLabel
+        'eventValue'      : value
+        'nonInteraction'  : nonInteraction
+    else if window.ga
       ga 'send', 'event',
         'eventCategory' 	: eventCategory
         'eventAction'		  : action

@@ -1,6 +1,6 @@
 /*
-* videojs-ga - v0.4.2 - 2015-02-06
-* Copyright (c) 2015 Michael Bensoussan
+* videojs-ga - v0.4.2 - 2016-11-28
+* Copyright (c) 2016 Michael Bensoussan
 * Licensed MIT
 */
 (function() {
@@ -12,8 +12,8 @@
       options = {};
     }
     dataSetupOptions = {};
-    if (this.options()["data-setup"]) {
-      parsedOptions = JSON.parse(this.options()["data-setup"]);
+    if (this.options_["data-setup"]) {
+      parsedOptions = JSON.parse(this.options_["data-setup"]);
       if (parsedOptions.ga) {
         dataSetupOptions = parsedOptions.ga;
       }
@@ -23,6 +23,8 @@
     percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval || 10;
     eventCategory = options.eventCategory || dataSetupOptions.eventCategory || 'Video';
     eventLabel = options.eventLabel || dataSetupOptions.eventLabel;
+    options.useDataLayer = options.useDataLayer || false;
+    options.dataLayerEvent = options.dataLayerEvent || 'gaEvent';
     options.debug = options.debug || false;
     percentsAlreadyTracked = [];
     seekStart = seekEnd = 0;
@@ -102,7 +104,16 @@
       }
     };
     sendbeacon = function(action, nonInteraction, value) {
-      if (window.ga) {
+      if (options.useDataLayer) {
+        dataLayer.push({
+          'event': options.dataLayerEvent,
+          'eventCategory': eventCategory,
+          'eventAction': action,
+          'eventLabel': eventLabel,
+          'eventValue': value,
+          'nonInteraction': nonInteraction
+        });
+      } else if (window.ga) {
         ga('send', 'event', {
           'eventCategory': eventCategory,
           'eventAction': action,
